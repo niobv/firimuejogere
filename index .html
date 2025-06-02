@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Movies Subscription - Netflix Style Uganda Mobile Money</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #141414;
+    color: #e5e5e5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem 3rem;
+  }
+  header {
+    width: 100%;
+    background-color: #111;
+    padding: 1rem 2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e50914;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header .logo {
+    user-select: none;
+  }
+  header button#logout-btn {
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+  header button#logout-btn:hover {
+    background-color: #b00611;
+  }
+  main {
+    max-width: 960px;
+    width: 100%;
+    margin-top: 2.5rem;
+    flex-grow: 1;
+  }
+  .status-bar {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #e50914;
+    text-align: center;
+  }
+  /* Login/Signup form */
+  .auth-modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  .auth-modal {
+    background: #222;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 0 35px #e50914;
+    text-align: center;
+    color: #fff;
+  }
+  .auth-modal h2 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #e50914;
+  }
+  .auth-modal label {
+    display: block;
+    text-align: left;
+    margin: 0.8rem 0 0.3rem;
+  }
+  .auth-modal input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+  }
+  .auth-modal button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #e50914;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .auth-modal button:hover {
+    background-color: #b00611;
+  }
+  .auth-modal-toggle {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #ddd;
+    cursor: pointer;
+    user-select: none;
+  }
+  .auth-error {
+    color: #ff5555;
+    margin-top: 0.6rem;
+    font-weight: 600;
+    min-height: 20px;
+  }
+  /* Subscription Plans */
+  .plans-container {
+    max-width: 960px;
+    margin: 0 auto 3rem auto;
+    color: #fff;
+    text-align: center;
+  }
+  .plans-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: #e50914;
+    letter-spacing: 0.05em;
+  }
+  .plans {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .plan-card {
+    background: #222;
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 0 20px #e50914;
+    flex: 1 1 220px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .plan-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #f31212;
+  }
+  .plan-price {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  .plan-description {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+    color: #ccc;
+  }
+  .subscribe-btn {
+    background: #e50914;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 15px #e50914;
+    transition: background-color 0.3s ease;
+  }
+  .subscribe-btn:hover {
+    background-color: #b00611;
+  }
+  /* Movies List */
+  .movies-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .movie-card {
+    background: #222;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(229,9,20,0.7);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .movie-card:hover {
+    transform: scale(1.05);
+  }
+  .movie-thumb {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    background-color: #000;
+  }
+  .movie-info {
+    padding: 0.75rem 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .movie-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: #fff;
+  }
+  .movie-play-btn {
+    background-color: #e50914;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+  }
+  .movie-play-btn:hover {
+    background-color: #b00611;
+  }
+  /* Video Player Overlay */
+  #player-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.97);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+  }
+  #player-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #movie-player {
+    width: 90vw;
+    max-width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 0 40px #e50914;
+  }
+  #close-player {
+    margin-top: 1rem;
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 25px #e50914;
+    transition: background-color 0.3s ease;
+  }
+  #close-player:hover {
+    background-color: #b00611;
+  }
+  /* Subscription Modal */
+  #subscription-modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+  #subscription-modal-bg.active {
+    display: flex;
+  }
+  #subscription-modal {
+    background: #222;
+    padding: 2rem 2.5rem;
+    border-radius: 14px;
+    max-width: 420px;
+    width: 90%;
+    color: white;
+    text-align: center;
+    box-shadow: 0 0 40px #e50914;
+    user-select: none;
+  }
+  #subscription-modal h2 {
+    margin-bottom: 1.2rem;
+    font-size: 1.8rem;
+    color: #e50914;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  #subscription-modal p {
+    margin-bottom: 1.8rem;
+    font-size: 1.1rem;
+  }
+  #subscription-modal .close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #bbb;
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #subscription-modal .close-btn:hover {
+    color: #e50914;
+  }
+</style>
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">Awesome Movies</div>
+  <button id="logout-btn" style="display:none;">Logout</button>
+</header>
+
+<main>
+  <div id="auth-section" style="display:none;">
+    <!-- Subscription Plans -->
+    <section class="plans-container" aria-label="Subscription Plans">
+      <h1 class="plans-title">Pick a Subscription Plan</h1>
+      <div class="plans" id="plans-list"></div>
+    </section>
+    <!-- Movies List -->
+    <section aria-label="Movies">
+      <h2 style="color:#e50914; margin-bottom: 0.7rem;">Available Movies</h2>
+      <div class="movies-list" id="movies-list"></div>
+    </section>
+  </div>
+
+  <div id="unauth-section" style="max-width: 400px; margin: 5rem auto;">
+    <button id="show-login" style="width: 100%; padding: 1rem; background: #e50914; border: none; color: white; font-weight: 700; font-size:1.2rem; border-radius: 8px; cursor:pointer;">Sign In / Sign Up</button>
+  </div>
+
+  <div class="status-bar" id="status-bar"></div>
+</main>
+
+<!-- Video Player Overlay -->
+<div id="player-overlay" aria-modal="true" role="dialog" aria-label="Movie Player" tabindex="-1">
+  <video id="movie-player" controls></video>
+  <button id="close-player">Close</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-modal-bg" id="auth-modal" aria-modal="true" role="dialog" aria-label="User Authentication" tabindex="-1" style="display:none;">
+  <div class="auth-modal">
+    <h2 id="auth-title">Sign In</h2>
+    <form id="auth-form" novalidate>
+      <label for="email-input">Email</label>
+      <input type="email" id="email-input" name="email" required autocomplete="email" />
+      <label for="password-input">Password</label>
+      <input type="password" id="password-input" name="password" required autocomplete="current-password" />
+      <button type="submit" id="auth-submit-btn">Sign In</button>
+      <div class="auth-error" id="auth-error"></div>
+    </form>
+    <div class="auth-modal-toggle" id="auth-toggle">New here? Create an account</div>
+  </div>
+</div>
+
+<!-- Subscription Modal -->
+<div id="subscription-modal-bg" aria-modal="true" role="dialog" aria-label="Subscription Payment" tabindex="-1">
+  <div id="subscription-modal">
+    <button class="close-btn" aria-label="Close Subscription Modal" id="close-subscription-btn">&#10005;</button>
+    <h2>Complete Your Subscription</h2>
+    <p>Subscribe to watch all movies. Payment is via Mobile Money Uganda (MTN or Airtel)</p>
+    <div id="subscription-plan-details" style="margin-bottom: 1rem; font-weight: 700;"></div>
+    <button class="subscribe-btn" id="btn-pay-subscription">Pay via Mobile Money</button>
+  </div>
+</div>
+
+<script>
+  // Movie data sample - thumbnails for demo only (free videos)
+  const movies = [
+    {
+      id: 1,
+      title: "Big Buck Bunny",
+      url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      thumbnail: "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
+    },
+    {
+      id: 2,
+      title: "Sintel",
+      url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+      thumbnail: "https://upload.wikimedia.org/wikipedia/commons/7/75/Sintel_poster.jpg"
+    },
+    {
+      id: 3,
+      title: "Tears of Steel",
+      url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      thumbnail: "https://mango.blender.org/wp-content/uploads/2013/05/mango_poster_square.jpg"
+    }
+  ];
+
+  // Subscription plans (with Flutterwave price IDs you must configure and replace)
+  const subscriptionPlans = [
+    {
+      id: 'basic',
+      name: 'Basic',
+      priceUGX: 10000,
+      description: 'Monthly subscription,\nMobile Money Uganda support.',
+      flutterwavePriceId: 'price_12345' // placeholder
+    },
+    {
+      id: 'standard',
+      name: 'Standard',
+      priceUGX: 18000,
+      description: 'Monthly, HD Streaming,\nMobile Money support.',
+      flutterwavePriceId: 'price_23456' // placeholder
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      priceUGX: 25000,
+      description: 'Monthly, Ultra HD,\nMultiple devices.',
+      flutterwavePriceId: 'price_34567' // placeholder
+    }
+  ];
+
+  const flutterwavePublicKey = 'FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxx'; // Replace with your Flutterwave test/live key
+  const flutterwave = FlutterwaveCheckout;
+
+  // LocalStorage keys
+  const LS_USER_KEY = 'moviesAppUser';
+  const LS_SUBSCRIPTION_KEY = 'moviesAppSubscription'; // store subscription { planId, active: true }
+
+  const authModal = document.getElementById('auth-modal');
+  const authForm = document.getElementById('auth-form');
+  const authTitle = document.getElementById('auth-title');
+  const authToggle = document.getElementById('auth-toggle');
+  const authError = document.getElementById('auth-error');
+  const btnShowLogin = document.getElementById('show-login');
+  const authSection = document.getElementById('auth-section');
+  const unauthSection = document.getElementById('unauth-section');
+  const logoutBtn = document.getElementById('logout-btn');
+  const statusBar = document.getElementById('status-bar');
+
+  const plansListEl = document.getElementById('plans-list');
+  const moviesListEl = document.getElementById('movies-list');
+
+  const playerOverlay = document.getElementById('player-overlay');
+  const moviePlayer = document.getElementById('movie-player');
+  const closePlayerBtn = document.getElementById('close-player');
+
+  const subscriptionModalBg = document.getElementById('subscription-modal-bg');
+  const subscriptionModal = document.getElementById('subscription-modal');
+  const btnPaySubscription = document.getElementById('btn-pay-subscription');
+  const subscriptionPlanDetailsEl = document.getElementById('subscription-plan-details');
+  const closeSubscriptionBtn = document.getElementById('close-subscription-btn');
+
+  let mode = 'login'; // or 'signup'
+  let currentUser = null;
+  let currentSubscription = null;
+  let movieToPlayAfterSubscription = null;
+  let chosenPlan = null;
+
+  // Util: save user (email + password hash simple) in localStorage - mock
+  function saveUser(email, password) {
+    localStorage.setItem(LS_USER_KEY, JSON.stringify({ email, password }));
+  }
+  // Util: get user
+  function getUser() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_USER_KEY));
+    } catch {
+      return null;
+    }
+  }
+  // Util: login simulation
+  function loginUser(email, password) {
+    const user = getUser();
+    if (!user || user.email !== email || user.password !== password) return false;
+    currentUser = user;
+    return true;
+  }
+  // Util: signup simulation
+  function signupUser(email, password) {
+    if (getUser()) {
+      return false; // already user exists
+    }
+    saveUser(email, password);
+    currentUser = { email, password };
+    return true;
+  }
+  // Util: save subscription status
+  function saveSubscription(subscription) {
+    localStorage.setItem(LS_SUBSCRIPTION_KEY, JSON.stringify(subscription));
+  }
+  // Util: get subscription
+  function getSubscription() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_SUBSCRIPTION_KEY));
+    } catch {
+      return null;
+    }
+  }
+  // Check if user is logged in
+  function isLoggedIn() {
+    if (!currentUser) currentUser = getUser();
+    return !!currentUser;
+  }
+  // Check if user has active subscription
+  function isSubscribed() {
+    if (!currentSubscription) currentSubscription = getSubscription();
+    return currentSubscription && currentSubscription.active === true;
+  }
+  // Clear session data
+  function logout() {
+    currentUser = null;
+    currentSubscription = null;
+    localStorage.removeItem(LS_USER_KEY);
+    localStorage.removeItem(LS_SUBSCRIPTION_KEY);
+    updateUIForAuth();
+  }
+
+  // Show auth modal with login or signup
+  function showAuthModal() {
+    authError.textContent = '';
+    authTitle.textContent = mode === 'login' ? 'Sign In' : 'Sign Up';
+    authForm.reset();
+    authForm.querySelector('input[name="email"]').focus();
+    authModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function hideAuthModal() {
+    authModal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  // Toggle between login/signup
+  authToggle.addEventListener('click', () => {
+    mode = mode === 'login' ? 'signup' : 'login';
+    showAuthModal();
+  });
+
+  authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    authError.textContent = '';
+    const email = authForm.email.value.trim().toLowerCase();
+    const password = authForm.password.value.trim();
+    if (!email || !password) {
+      authError.textContent = 'Please fill all fields.';
+      return;
+    }
+    if (mode === 'login') {
+      if (loginUser(email, password)) {
+        hideAuthModal();
+        updateUIForAuth();
+      } else {
+        authError.textContent = 'Invalid email or password.';
+      }
+    } else {
+      if (signupUser(email, password)) {
+        hideAuthModal();
+        updateUIForAuth();
+      } else {
+        authError.textContent = 'User already exists. Please sign in.';
+      }
+    }
+  });
+  btnShowLogin.addEventListener('click', () => {
+    mode = 'login';
+    showAuthModal();
+  });
+  logoutBtn.addEventListener('click', logout);
+
+  // Update UI based on auth and subscription state
+  function updateUIForAuth() {
+    if (isLoggedIn()) {
+      unauthSection.style.display = 'none';
+      authSection.style.display = '';
+      logoutBtn.style.display = 'inline-block';
+      currentSubscription = getSubscription();
+      if (isSubscribed()) {
+        statusBar.textContent = `Subscribed (${currentSubscription.planName}) - Enjoy streaming!`;
+      } else {
+        statusBar.textContent = 'Not subscribed - Please choose a subscription plan.';
+      }
+    } else {
+      unauthSection.style.display = '';
+      authSection.style.display = 'none';
+      logoutBtn.style.display = 'none';
+      statusBar.textContent = 'Please sign in to access movies.';
+    }
+  }
+
+  // Render subscription plans
+  function renderSubscriptionPlans() {
+    plansListEl.innerHTML = '';
+    subscriptionPlans.forEach(plan => {
+      const card = document.createElement('div');
+      card.className = 'plan-card';
+      card.innerHTML = `
+        <div class="plan-name">${plan.name}</div>
+        <div class="plan-price">UGX ${plan.priceUGX.toLocaleString()}</div>
+        <div class="plan-description" style="white-space: pre-line;">${plan.description}</div>
+        <button class="subscribe-btn" data-plan-id="${plan.id}">Subscribe</button>
+      `;
+      plansListEl.appendChild(card);
+
+      card.querySelector('.subscribe-btn').addEventListener('click', () => {
+        chosenPlan = plan;
+        openSubscriptionModal(plan);
+      });
+    });
+  }
+
+  // Render movies list
+  function renderMovies() {
+    moviesListEl.innerHTML = '';
+    movies.forEach(movie => {
+      const card = document.createElement('div');
+      card.className = 'movie-card';
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Play movie ${movie.title}`);
+      card.innerHTML = `
+        <img src="${movie.thumbnail}" alt="${movie.title} thumbnail" class="movie-thumb" />
+        <div class="movie-info">
+          <div class="movie-title">${movie.title}</div>
+          <button class="movie-play-btn" aria-label="Play ${movie.title}">Play</button>
+        </div>
+      `;
+      moviesListEl.appendChild(card);
+
+      const playBtn = card.querySelector('.movie-play-btn');
+      playBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playMovieClick(movie);
+      });
+      card.addEventListener('click', () => playMovieClick(movie));
+      card.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          playMovieClick(movie);
+        }
+      });
+    });
+  }
+
+  // Play movie handler
+  function playMovieClick(movie) {
+    if (!isLoggedIn()) {
+      showAuthModal();
+      alert('You must sign in first.');
+      return;
+    }
+    if (!isSubscribed()) {
+      alert('Please subscribe to watch movies.');
+      return;
+    }
+    openPlayer(movie);
+  }
+
+  // Video player open
+  function openPlayer(movie) {
+    moviePlayer.src = movie.url;
+    playerOverlay.classList.add('active');
+    moviePlayer.play();
+    moviePlayer.focus();
+  }
+  // Video player close
+  function closePlayer() {
+    moviePlayer.pause();
+    moviePlayer.src = '';
+    playerOverlay.classList.remove('active');
+  }
+
+  // Subscription modal open/close
+  function openSubscriptionModal(plan) {
+    subscriptionPlanDetailsEl.textContent = `${plan.name} Plan - UGX ${plan.priceUGX.toLocaleString()} per month`;
+    subscriptionModalBg.classList.add('active');
+  }
+  function closeSubscriptionModal() {
+    subscriptionModalBg.classList.remove('active');
+  }
+
+  // Flutterwave subscription payment handler
+  function payWithFlutterwave(plan) {
+    if(!currentUser) {
+      alert('Please sign in first.');
+      return;
+    }
+    // Prepare payment details
+    FlutterwaveCheckout({
+      public_key: flutterwavePublicKey,
+      tx_ref: `MC_${Date.now()}`,
+      amount: plan.priceUGX,
+      currency: "UGX",
+      payment_options: "mobilemoneyuganda",
+      customer: {
+        email: currentUser.email,
+        name: currentUser.email.split('@')[0],
+        phone_number: "", // optionally add if you collect phone
+      },
+      customizations: {
+        title: "Awesome Movies Subscription",
+        description: `${plan.name} plan subscription`,
+        logo: "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg",
+      },
+      callback: function (data) {
+        if (data.status === "successful") {
+          // Save subscription on frontend only - demo only
+          saveSubscription({
+            planId: plan.id,
+            planName: plan.name,
+            active: true,
+            txRef: data.tx_ref,
+            flwTransactionId: data.transaction_id,
+          });
+          currentSubscription = getSubscription();
+          updateUIForAuth();
+          alert('Subscription payment successful! Enjoy streaming movies.');
+          closeSubscriptionModal();
+        } else {
+          alert('Payment not successful. Please try again.');
+        }
+      },
+      onclose: function () {
+        console.log('Payment widget closed.');
+      }
+    });
+  }
+
+  // Event listeners
+  closePlayerBtn.addEventListener('click', closePlayer);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && playerOverlay.classList.contains('active')) closePlayer();
+  });
+
+  btnPaySubscription.addEventListener('click', () => {
+    if (chosenPlan) {
+      payWithFlutterwave(chosenPlan);
+    }
+  });
+
+  closeSubscriptionBtn.addEventListener('click', closeSubscriptionModal);
+
+  // Initialization
+  function init() {
+    currentUser = getUser();
+    currentSubscription = getSubscription();
+    updateUIForAuth();
+    renderMovies();
+    renderSubscriptionPlans();
+  }
+  init();
+
+</script>
+
+</body>
+</html>
+
